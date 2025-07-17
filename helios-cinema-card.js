@@ -3,18 +3,26 @@ import {
   html,
   css,
 } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
 
-@customElement("helios-cinema-card")
-export class HeliosCinemaCard extends LitElement {
-  @property({ attribute: false }) hass;
-  @state() config;
-  @state() currentFilmIndex = 0;
-  @state() isManualMode = false;
-  @state() films = [];
-  
-  autoRotateInterval;
-  manualTimeoutId;
+class HeliosCinemaCard extends LitElement {
+  static get properties() {
+    return {
+      hass: { attribute: false },
+      config: { state: true },
+      currentFilmIndex: { state: true },
+      isManualMode: { state: true },
+      films: { state: true }
+    };
+  }
+
+  constructor() {
+    super();
+    this.currentFilmIndex = 0;
+    this.isManualMode = false;
+    this.films = [];
+    this.autoRotateInterval = null;
+    this.manualTimeoutId = null;
+  }
 
   static async getConfigElement() {
     return document.createElement("helios-cinema-card-editor");
@@ -400,3 +408,14 @@ export class HeliosCinemaCard extends LitElement {
     }
   }
 }
+
+// Register the custom element
+customElements.define("helios-cinema-card", HeliosCinemaCard);
+
+// Register with HACS/Home Assistant
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "helios-cinema-card",
+  name: "Helios Cinema Card",
+  description: "Display movie information from Helios Cinema locations with interactive rotating card"
+});
