@@ -1,0 +1,43 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate Python files
+        run: |
+          python -m py_compile custom_components/helios_cinema/__init__.py
+          python -m py_compile custom_components/helios_cinema/sensor.py
+          python -m py_compile test_scraper.py
+
+      - name: Test scraper
+        run: |
+          python test_scraper.py
+
+      - name: Validate manifest
+        run: |
+          python -c "import json; json.load(open('custom_components/helios_cinema/manifest.json'))"
+
+      - name: Validate HACS
+        run: |
+          python -c "import json; json.load(open('hacs.json'))"
