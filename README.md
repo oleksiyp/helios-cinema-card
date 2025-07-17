@@ -5,51 +5,53 @@
 [![License][license-shield]](LICENSE)
 [![hacs][hacsbadge]][hacs]
 
-A custom Home Assistant integration that displays movies from **any Helios Cinema location** as an interactive rotating card.
+A custom Lovelace card for Home Assistant that displays movies from Helios Cinema locations as an interactive rotating card.
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=oleksiyp&repository=helios-cinema-card&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=oleksiyp&repository=helios-cinema-card&category=lovelace)
 
-![Helios Cinema Card Demo](demo-screenshot.png)
+![Helios Cinema Card Demo](screenshots/card-demo.png)
 
 ## Features
 
-- �️ **Configurable cinema locations** - Works with any Helios Cinema in Poland
-- 🎬 **Real-time movie data** with automatic updates
-- 🔄 **Auto-rotating display** with manual override
+- 🎬 **Interactive movie display** with auto-rotation
+- 🔄 **Manual navigation** with click-to-browse
 - 📱 **Responsive design** for desktop and mobile
-- ⏰ **Showtimes** for today and tomorrow
-- 🎨 **Customizable appearance** and behavior
-- 🚀 **Easy installation** via HACS or manual setup
+- ⏰ **Movie details** including showtimes and descriptions
+- 🎨 **Customizable behavior** and timing
+- 🚀 **Easy installation** via HACS
 
-## Supported Cinemas
+## Prerequisites
 
-This integration works with any Helios Cinema location in Poland, including:
-- **Wrocław**: Magnolia, Arkady
-- **Warsaw**: City, Galeria Mokotów, Blue City
-- **Krakow**: Plaza, Galeria Kazimierz
-- **Gdansk**: Madison, Forum Gdansk
-- **Poznan**: Stary Browar, Malta
-- And many more!
+This card requires the **[Helios Cinema Scraper](https://github.com/oleksiyp/helios-cinema-scraper)** integration to provide movie data.
+
+### Install the Integration First
+
+1. Install [Helios Cinema Scraper](https://github.com/oleksiyp/helios-cinema-scraper) via HACS
+2. Configure it in your `configuration.yaml`:
+   ```yaml
+   sensor:
+     - platform: helios_cinema
+       cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"
+       cinema_name: "Wrocław Magnolia"
+   ```
+3. Restart Home Assistant
+4. Verify the sensor appears as `sensor.helios_cinema_wroclaw_magnolia` (or similar)
 
 ## Installation
 
 ### HACS (Recommended)
 
 1. Make sure you have [HACS](https://hacs.xyz/) installed
-2. Go to HACS → Integrations
+2. Go to HACS → Frontend
 3. Click the "+" button and search for "Helios Cinema Card"
-4. Install the integration
-5. Restart Home Assistant
-6. Add the integration through Settings → Integrations
+4. Install the card
+5. Add the card resource (HACS usually does this automatically)
 
 ### Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/oleksiyp/helios-cinema-card/releases)
-2. Extract the files
-3. Copy `custom_components/helios_cinema` to your `custom_components` directory
-4. Copy `www/helios-cinema-card.js` to your `www` directory
-5. Restart Home Assistant
-6. Add the Lovelace resource:
+1. Download `helios-cinema-card.js` from the latest release
+2. Copy it to your `www` directory in Home Assistant
+3. Add the resource to your Lovelace configuration:
 
 ```yaml
 resources:
@@ -61,58 +63,22 @@ resources:
 
 ## Configuration
 
-### Add to configuration.yaml
-
-```yaml
-helios_cinema:
-  update_interval: 30  # minutes (optional, default: 30)
-  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"  # Your cinema URL
-  cinema_name: "Helios Magnolia"  # Custom name (optional)
-```
-
-**Finding your cinema URL:**
-1. Go to [helios.pl](https://helios.pl)
-2. Select your city and cinema location
-3. Copy the URL from your browser
-4. Use it in the `cinema_url` configuration
-
-**Example configurations for popular locations:**
-
-```yaml
-# Wrocław Magnolia
-helios_cinema:
-  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"
-  cinema_name: "Helios Magnolia Wrocław"
-
-# Warsaw City
-helios_cinema:
-  cinema_url: "https://helios.pl/warszawa/kino-helios-city"
-  cinema_name: "Helios City Warsaw"
-
-# Krakow Plaza
-helios_cinema:
-  cinema_url: "https://helios.pl/krakow/kino-helios-plaza"
-  cinema_name: "Helios Plaza Krakow"
-```
-
-### Add to Lovelace
+Add the card to your Lovelace dashboard:
 
 ```yaml
 type: custom:helios-cinema-card
-entity: sensor.helios_cinema_films_magnolia  # Entity name varies by cinema
+entity: sensor.helios_cinema_wroclaw_magnolia  # Use your sensor entity
 name: "Cinema Films"
 auto_rotate: true
 rotate_interval: 5000  # milliseconds
 manual_timeout: 30000  # milliseconds
 ```
 
-**Note:** The entity name changes based on your cinema location. Check Developer Tools → States to find the exact entity name.
-
 ## Card Options
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
-| `entity` | string | **Required** | The sensor entity ID |
+| `entity` | string | **Required** | The Helios Cinema sensor entity ID |
 | `name` | string | "Cinema Films" | Card title |
 | `auto_rotate` | boolean | true | Enable automatic rotation |
 | `rotate_interval` | number | 5000 | Auto-rotation interval in milliseconds |
@@ -127,39 +93,47 @@ manual_timeout: 30000  # milliseconds
 - Film counter shows current position (e.g., "2 / 5")
 - Mode indicator shows "Auto Rotate" or "Manual Mode"
 
+## Supported Cinemas
+
+This card works with any Helios Cinema location in Poland that you configure in the [Helios Cinema Scraper](https://github.com/oleksiyp/helios-cinema-scraper) integration, including:
+
+- **Wrocław**: Magnolia, Arkady
+- **Warsaw**: City, Galeria Mokotów, Blue City
+- **Krakow**: Plaza, Galeria Kazimierz
+- **Gdansk**: Madison, Forum Gdansk
+- **Poznan**: Stary Browar, Malta
+- And many more!
+
 ## Development
-
-### Setup
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Test the scraping functionality
-python test_scraper.py
-```
 
 ### File Structure
 
 ```
 helios-cinema-card/
-├── custom_components/
-│   └── helios_cinema/
-│       ├── __init__.py
-│       ├── manifest.json
-│       └── sensor.py
-├── www/
-│   └── helios-cinema-card.js
-├── test_scraper.py
-├── requirements.txt
-└── README.md
+├── helios-cinema-card.js    # Main card component
+├── hacs.json               # HACS configuration
+├── screenshots/            # Demo images
+└── README.md              # Documentation
 ```
+
+### Building from Source
+
+The card is built using Lit framework. To modify:
+
+1. Edit `helios-cinema-card.js`
+2. Test in your Home Assistant instance
+3. Submit a pull request
 
 ## Troubleshooting
 
-1. **No films showing**: Check that the Helios website is accessible and the HTML structure hasn't changed
-2. **Card not loading**: Ensure the JavaScript file is in the `www` directory and added to resources
-3. **Entity not found**: Verify the sensor is created by checking Developer Tools > States
+1. **Card not loading**: Ensure the JavaScript file is added to resources
+2. **No data showing**: Verify the Helios Cinema Scraper integration is installed and working
+3. **Entity not found**: Check Developer Tools > States for the correct entity name
+4. **Auto-rotation not working**: Check browser console for JavaScript errors
+
+## Related Projects
+
+- **[Helios Cinema Scraper](https://github.com/oleksiyp/helios-cinema-scraper)** - Required integration for data source
 
 ## License
 
