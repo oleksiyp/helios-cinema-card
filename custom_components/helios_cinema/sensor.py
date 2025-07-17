@@ -27,26 +27,36 @@ async def async_setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the Helios Cinema sensor platform."""
-    cinema_url = hass.data.get("helios_cinema", {}).get(
-        "cinema_url", "https://helios.pl/wroclaw/kino-helios-magnolia"
-    )
-    update_interval = hass.data.get("helios_cinema", {}).get("update_interval", 30)
+    cinema_config = hass.data.get("helios_cinema", {})
+    cinema_url = cinema_config.get("cinema_url", "https://helios.pl/wroclaw/kino-helios-magnolia")
+    update_interval = cinema_config.get("update_interval", 30)
+    cinema_name = cinema_config.get("cinema_name", "Helios Cinema")
     
-    sensor = HeliosCinemaSensor(cinema_url, update_interval)
+    sensor = HeliosCinemaSensor(cinema_url, update_interval, cinema_name)
     async_add_entities([sensor], True)
 
 
 class HeliosCinemaSensor(SensorEntity):
     """Representation of a Helios Cinema sensor."""
 
-    def __init__(self, cinema_url: str, update_interval: int) -> None:
+    def __init__(self, cinema_url: str, update_interval: int, cinema_name: str) -> None:
         """Initialize the sensor."""
         self._cinema_url = cinema_url
         self._update_interval = update_interval
+        self._cinema_name = cinema_name
         self._state = None
         self._films = []
-        self._attr_name = "Helios Cinema Films"
-        self._attr_unique_id = "helios_cinema_films"
+        
+        # Extract cinema location from URL for unique naming
+        url_parts = cinema_url.split('/')
+        location = "default"
+        if len(url_parts) >= 4:
+            location = url_parts[-2] if url_parts[-1] else url_parts[-2]
+            if location.startswith('kino-'):
+                location = location[5:]  # Remove 'kino-' prefix
+        
+        self._attr_name = f"{cinema_name} Films"
+        self._attr_unique_id = f"helios_cinema_films_{location}"
         self._attr_icon = "mdi:movie"
 
     @property
@@ -61,6 +71,7 @@ class HeliosCinemaSensor(SensorEntity):
             "films": self._films,
             "last_updated": datetime.now().isoformat(),
             "cinema_url": self._cinema_url,
+            "cinema_name": self._cinema_name,
         }
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)

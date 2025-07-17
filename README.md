@@ -5,18 +5,31 @@
 [![License][license-shield]](LICENSE)
 [![hacs][hacsbadge]][hacs]
 
-A custom Home Assistant integration that displays movies from Helios Cinema Wrocław as an interactive rotating card.
+A custom Home Assistant integration that displays movies from **any Helios Cinema location** as an interactive rotating card.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=oleksiyp&repository=helios-cinema-card&category=integration)
 
 ![Helios Cinema Card Demo](demo-screenshot.png)
 
 ## Features
 
-- 🎬 **Real-time movie data** from Helios Cinema Wrocław Magnolia
+- �️ **Configurable cinema locations** - Works with any Helios Cinema in Poland
+- 🎬 **Real-time movie data** with automatic updates
 - 🔄 **Auto-rotating display** with manual override
 - 📱 **Responsive design** for desktop and mobile
 - ⏰ **Showtimes** for today and tomorrow
 - 🎨 **Customizable appearance** and behavior
 - 🚀 **Easy installation** via HACS or manual setup
+
+## Supported Cinemas
+
+This integration works with any Helios Cinema location in Poland, including:
+- **Wrocław**: Magnolia, Arkady
+- **Warsaw**: City, Galeria Mokotów, Blue City
+- **Krakow**: Plaza, Galeria Kazimierz
+- **Gdansk**: Madison, Forum Gdansk
+- **Poznan**: Stary Browar, Malta
+- And many more!
 
 ## Installation
 
@@ -48,24 +61,52 @@ resources:
 
 ## Configuration
 
-### Add to configuration.yaml:
+### Add to configuration.yaml
 
 ```yaml
 helios_cinema:
   update_interval: 30  # minutes (optional, default: 30)
-  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"  # optional
+  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"  # Your cinema URL
+  cinema_name: "Helios Magnolia"  # Custom name (optional)
 ```
 
-### Add to Lovelace:
+**Finding your cinema URL:**
+1. Go to [helios.pl](https://helios.pl)
+2. Select your city and cinema location
+3. Copy the URL from your browser
+4. Use it in the `cinema_url` configuration
+
+**Example configurations for popular locations:**
+
+```yaml
+# Wrocław Magnolia
+helios_cinema:
+  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"
+  cinema_name: "Helios Magnolia Wrocław"
+
+# Warsaw City
+helios_cinema:
+  cinema_url: "https://helios.pl/warszawa/kino-helios-city"
+  cinema_name: "Helios City Warsaw"
+
+# Krakow Plaza
+helios_cinema:
+  cinema_url: "https://helios.pl/krakow/kino-helios-plaza"
+  cinema_name: "Helios Plaza Krakow"
+```
+
+### Add to Lovelace
 
 ```yaml
 type: custom:helios-cinema-card
-entity: sensor.helios_cinema_films
+entity: sensor.helios_cinema_films_magnolia  # Entity name varies by cinema
 name: "Cinema Films"
 auto_rotate: true
 rotate_interval: 5000  # milliseconds
 manual_timeout: 30000  # milliseconds
 ```
+
+**Note:** The entity name changes based on your cinema location. Check Developer Tools → States to find the exact entity name.
 
 ## Card Options
 
@@ -131,3 +172,12 @@ MIT License - see LICENSE file for details
 3. Make your changes
 4. Test thoroughly
 5. Submit a pull request
+
+[releases-shield]: https://img.shields.io/github/release/oleksiyp/helios-cinema-card.svg?style=for-the-badge
+[commits-shield]: https://img.shields.io/github/commit-activity/y/oleksiyp/helios-cinema-card.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/oleksiyp/helios-cinema-card.svg?style=for-the-badge
+[hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
+
+[releases]: https://github.com/oleksiyp/helios-cinema-card/releases
+[commits]: https://github.com/oleksiyp/helios-cinema-card/commits/main
+[hacs]: https://github.com/custom-components/hacs

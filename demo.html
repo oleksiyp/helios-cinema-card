@@ -98,12 +98,13 @@
         // Mock Home Assistant object
         const mockHass = {
             states: {
-                'sensor.helios_cinema_films': {
+                'sensor.helios_cinema_films_magnolia': {
                     state: demoFilms.length.toString(),
                     attributes: {
                         films: demoFilms,
                         last_updated: new Date().toISOString(),
-                        cinema_url: 'https://helios.pl/wroclaw/kino-helios-magnolia'
+                        cinema_url: 'https://helios.pl/wroclaw/kino-helios-magnolia',
+                        cinema_name: 'Helios Magnolia'
                     }
                 }
             }
@@ -116,8 +117,8 @@
             // Set up the card
             card.setConfig({
                 type: 'custom:helios-cinema-card',
-                entity: 'sensor.helios_cinema_films',
-                name: 'Helios Cinema Wrocław',
+                entity: 'sensor.helios_cinema_films_magnolia',
+                name: 'Helios Magnolia Wrocław',
                 auto_rotate: true,
                 rotate_interval: 5000,
                 manual_timeout: 30000

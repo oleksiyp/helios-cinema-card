@@ -23,12 +23,13 @@ git add .
 echo "💾 Creating initial commit..."
 git commit -m "Initial release: Helios Cinema Card v1.0.0
 
-- Home Assistant integration for Helios Cinema Wrocław
+- Home Assistant integration for any Helios Cinema location in Poland
+- Configurable cinema URL and name support
 - Interactive rotating card component
 - Auto-rotation with manual override
 - Real-time movie data scraping
-- HACS compatibility
-- Complete documentation and setup guides"
+- HACS compatibility with 'Add to Home Assistant' button
+- Complete documentation and setup guides for all cinema locations"
 
 echo ""
 echo "🚀 Next steps to publish on GitHub:"

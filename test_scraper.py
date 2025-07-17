@@ -4,11 +4,15 @@
 import asyncio
 import aiohttp
 from bs4 import BeautifulSoup
+import sys
 
 
-async def test_scraper():
+async def test_scraper(url=None):
     """Test the web scraping functionality."""
-    url = "https://helios.pl/wroclaw/kino-helios-magnolia"
+    if url is None:
+        url = "https://helios.pl/wroclaw/kino-helios-magnolia"
+    
+    print(f"Testing scraper for: {url}")
     
     try:
         async with aiohttp.ClientSession() as session:
@@ -50,4 +54,12 @@ async def test_scraper():
 
 
 if __name__ == "__main__":
-    asyncio.run(test_scraper())
+    # Allow custom URL from command line
+    url = sys.argv[1] if len(sys.argv) > 1 else None
+    if url:
+        print(f"Using custom URL: {url}")
+    else:
+        print("Using default URL. You can provide a custom URL as a command line argument.")
+        print("Example: python test_scraper.py https://helios.pl/warszawa/kino-helios-city")
+    
+    asyncio.run(test_scraper(url))

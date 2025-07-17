@@ -21,6 +21,7 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Optional("update_interval", default=30): cv.positive_int,
                 vol.Optional("cinema_url", default="https://helios.pl/wroclaw/kino-helios-magnolia"): cv.string,
+                vol.Optional("cinema_name", default="Helios Cinema"): cv.string,
             }
         )
     },

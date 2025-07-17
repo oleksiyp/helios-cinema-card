@@ -174,7 +174,7 @@ export class HeliosCinemaCard extends LitElement {
     return html`
       <ha-card @click=${this.handleCardClick}>
         <div class="card-header">
-          <div class="name">${this.config.name || "Cinema Films"}</div>
+          <div class="name">${this.config.name || entity.attributes.cinema_name || "Cinema Films"}</div>
           <div class="film-counter">${this.currentFilmIndex + 1} / ${this.films.length}</div>
         </div>
         

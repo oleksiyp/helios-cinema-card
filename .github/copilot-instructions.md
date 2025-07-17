@@ -2,7 +2,7 @@
 
 # Helios Cinema Card Development Instructions
 
-This is a Home Assistant custom component that scrapes movie information from Helios Cinema Wrocław and displays it as an interactive rotating card.
+This is a Home Assistant custom component that scrapes movie information from **any Helios Cinema location** and displays it as an interactive rotating card.
 
 ## Project Structure
 - `custom_components/helios_cinema/` - Home Assistant integration files
@@ -11,9 +11,9 @@ This is a Home Assistant custom component that scrapes movie information from He
 - Frontend uses Lit framework for web components
 
 ## Key Components
-1. **Sensor** (`sensor.py`) - Fetches and parses movie data from Helios website
+1. **Sensor** (`sensor.py`) - Fetches and parses movie data from configurable Helios website
 2. **Card** (`helios-cinema-card.js`) - Interactive frontend component with rotation logic
-3. **Integration** (`__init__.py`) - Home Assistant component setup
+3. **Integration** (`__init__.py`) - Home Assistant component setup with configurable cinema support
 
 ## Development Guidelines
 - Follow Home Assistant development patterns and async/await usage
@@ -21,9 +21,11 @@ This is a Home Assistant custom component that scrapes movie information from He
 - Maintain responsive design for both desktop and mobile
 - Implement proper TypeScript-like patterns in JavaScript (without actual TypeScript syntax)
 - Use Home Assistant design tokens and styling conventions
+- Support multiple cinema locations through configuration
 
 ## Web Scraping Notes
-- Target URL: https://helios.pl/wroclaw/kino-helios-magnolia
+- Configurable cinema URL (default: https://helios.pl/wroclaw/kino-helios-magnolia)
+- Works with any Helios cinema location in Poland
 - Parse movie titles, descriptions, images, and showtimes
 - Handle dynamic content and fallback parsing strategies
 - Respect rate limiting and add appropriate delays
@@ -34,3 +36,9 @@ This is a Home Assistant custom component that scrapes movie information from He
 - Return to auto mode after 30 seconds of inactivity
 - Show navigation controls on hover
 - Display film counter and mode indicator
+- Display configurable cinema name in card header
+
+## Configuration Options
+- `cinema_url`: URL of the Helios cinema location
+- `cinema_name`: Display name for the cinema
+- `update_interval`: How often to fetch new data (minutes)

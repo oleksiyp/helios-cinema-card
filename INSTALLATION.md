@@ -77,23 +77,56 @@ Add the following to your `configuration.yaml`:
 ```yaml
 helios_cinema:
   update_interval: 30  # Update every 30 minutes (optional)
-  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"  # Optional, this is the default
+  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"  # Your cinema URL
+  cinema_name: "Helios Magnolia"  # Custom name (optional)
+```
+
+**Finding your cinema URL:**
+1. Go to [helios.pl](https://helios.pl)
+2. Select your city and cinema location
+3. Copy the URL from your browser
+4. Use it in the `cinema_url` configuration
+
+**Example configurations for popular locations:**
+
+```yaml
+# Wrocław Magnolia (default)
+helios_cinema:
+  cinema_url: "https://helios.pl/wroclaw/kino-helios-magnolia"
+  cinema_name: "Helios Magnolia Wrocław"
+
+# Warsaw City
+helios_cinema:
+  cinema_url: "https://helios.pl/warszawa/kino-helios-city"
+  cinema_name: "Helios City Warsaw"
+
+# Krakow Plaza
+helios_cinema:
+  cinema_url: "https://helios.pl/krakow/kino-helios-plaza"
+  cinema_name: "Helios Plaza Krakow"
+
+# Gdansk Madison
+helios_cinema:
+  cinema_url: "https://helios.pl/gdansk/kino-helios-madison"
+  cinema_name: "Helios Madison Gdansk"
 ```
 
 ### Step 2: Restart Home Assistant
-The sensor entity `sensor.helios_cinema_films` will be created automatically.
+The sensor entity will be created automatically with a name based on your cinema location (e.g., `sensor.helios_cinema_films_magnolia`).
 
 ### Step 3: Add Card to Dashboard
 Add a new card to your Lovelace dashboard:
 
 ```yaml
 type: custom:helios-cinema-card
-entity: sensor.helios_cinema_films
-name: "Helios Cinema Wrocław"
+entity: sensor.helios_cinema_films_magnolia  # Entity name varies by cinema
+name: "Helios Magnolia"
 auto_rotate: true
 rotate_interval: 5000
 manual_timeout: 30000
 ```
+
+**Note:** The entity name changes based on your cinema location. Check **Developer Tools** → **States** to find the exact entity name.
 
 ## Verification
 
