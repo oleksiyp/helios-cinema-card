@@ -1,30 +1,19 @@
-import {
-  LitElement,
-  html,
-  css,
-} from "lit";
-
-class HeliosCinemaCard extends LitElement {
-  static get properties() {
-    return {
-      hass: { attribute: false },
-      config: { state: true },
-      currentFilmIndex: { state: true },
-      isManualMode: { state: true },
-      films: { state: true }
-    };
-  }
-
+class HeliosCinemaCard extends HTMLElement {
   constructor() {
     super();
+    this._config = null;
+    this._hass = null;
     this.currentFilmIndex = 0;
     this.isManualMode = false;
     this.films = [];
     this.autoRotateInterval = null;
     this.manualTimeoutId = null;
+    
+    this.attachShadow({ mode: 'open' });
+    this.render();
   }
 
-  static async getConfigElement() {
+  static getConfigElement() {
     return document.createElement("helios-cinema-card-editor");
   }
 
@@ -46,36 +35,34 @@ class HeliosCinemaCard extends LitElement {
     if (!config.entity) {
       throw new Error("You need to define an entity");
     }
-    this.config = {
+    this._config = {
       auto_rotate: true,
       rotate_interval: 5000,
       manual_timeout: 30000,
       ...config,
     };
+    this.updateCard();
   }
 
-  shouldUpdate(changedProps) {
-    if (!this.config) {
-      return false;
-    }
-    return changedProps.has("hass") || changedProps.has("config");
+  set hass(hass) {
+    this._hass = hass;
+    this.updateFilmsData();
+    this.updateCard();
   }
 
-  updated(changedProps) {
-    super.updated(changedProps);
+  updateFilmsData() {
+    if (!this._hass || !this._config) return;
     
-    if (changedProps.has("hass") && this.hass) {
-      const entity = this.hass.states[this.config.entity];
-      if (entity && entity.attributes.films) {
-        this.films = entity.attributes.films;
-        if (this.currentFilmIndex >= this.films.length) {
-          this.currentFilmIndex = 0;
-        }
+    const entity = this._hass.states[this._config.entity];
+    if (entity && entity.attributes.films) {
+      this.films = entity.attributes.films;
+      if (this.currentFilmIndex >= this.films.length) {
+        this.currentFilmIndex = 0;
       }
-    }
-
-    if (this.config.auto_rotate && !this.isManualMode) {
-      this.startAutoRotate();
+      
+      if (this._config.auto_rotate && !this.isManualMode) {
+        this.startAutoRotate();
+      }
     }
   }
 
@@ -84,7 +71,8 @@ class HeliosCinemaCard extends LitElement {
     if (this.films.length > 1) {
       this.autoRotateInterval = setInterval(() => {
         this.nextFilm();
-      }, this.config.rotate_interval);
+        this.updateCard();
+      }, this._config.rotate_interval);
     }
   }
 
@@ -116,6 +104,7 @@ class HeliosCinemaCard extends LitElement {
     }
     
     this.nextFilm();
+    this.updateCard();
     this.resetManualTimeout();
   }
 
@@ -126,10 +115,11 @@ class HeliosCinemaCard extends LitElement {
     
     this.manualTimeoutId = setTimeout(() => {
       this.isManualMode = false;
-      if (this.config.auto_rotate) {
+      if (this._config.auto_rotate) {
         this.startAutoRotate();
       }
-    }, this.config.manual_timeout);
+      this.updateCard();
+    }, this._config.manual_timeout);
   }
 
   handlePrevious(e) {
@@ -137,6 +127,7 @@ class HeliosCinemaCard extends LitElement {
     this.isManualMode = true;
     this.stopAutoRotate();
     this.previousFilm();
+    this.updateCard();
     this.resetManualTimeout();
   }
 
@@ -145,6 +136,7 @@ class HeliosCinemaCard extends LitElement {
     this.isManualMode = true;
     this.stopAutoRotate();
     this.nextFilm();
+    this.updateCard();
     this.resetManualTimeout();
   }
 
@@ -156,42 +148,234 @@ class HeliosCinemaCard extends LitElement {
     return this.films.length > 0 ? this.films[this.currentFilmIndex] : null;
   }
 
+  createStyles() {
+    return `
+      <style>
+        ha-card {
+          cursor: pointer;
+          overflow: hidden;
+          transition: transform 0.2s ease;
+          display: block;
+          border-radius: 4px;
+          box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+          background: var(--card-background-color, white);
+        }
+        
+        ha-card:hover {
+          transform: translateY(-2px);
+        }
+        
+        .warning,
+        .no-films {
+          padding: 20px;
+          text-align: center;
+          color: var(--warning-color, #ff9800);
+        }
+        
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px;
+          background: var(--primary-color);
+          color: white;
+        }
+        
+        .name {
+          font-size: 1.2em;
+          font-weight: bold;
+        }
+        
+        .film-counter {
+          font-size: 0.9em;
+          opacity: 0.8;
+        }
+        
+        .film-container {
+          display: flex;
+          min-height: 300px;
+        }
+        
+        .film-image {
+          position: relative;
+          flex: 0 0 200px;
+          overflow: hidden;
+        }
+        
+        .film-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .navigation-buttons {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          transform: translateY(-50%);
+          display: flex;
+          justify-content: space-between;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .film-image:hover .navigation-buttons {
+          opacity: 1;
+        }
+        
+        .nav-button {
+          background: rgba(0, 0, 0, 0.7);
+          color: white;
+          border: none;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 10px;
+        }
+        
+        .nav-button:hover {
+          background: rgba(0, 0, 0, 0.9);
+        }
+        
+        .film-info {
+          flex: 1;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .film-title {
+          margin: 0 0 12px 0;
+          font-size: 1.4em;
+          color: var(--primary-text-color);
+        }
+        
+        .film-description {
+          margin: 0 0 16px 0;
+          color: var(--secondary-text-color);
+          line-height: 1.4;
+          flex: 1;
+        }
+        
+        .showtimes {
+          margin-top: auto;
+        }
+        
+        .showtime-section {
+          margin-bottom: 8px;
+        }
+        
+        .showtime-section h3 {
+          margin: 0 0 4px 0;
+          font-size: 0.9em;
+          color: var(--primary-color);
+          text-transform: uppercase;
+          font-weight: bold;
+        }
+        
+        .times {
+          font-size: 0.9em;
+          color: var(--secondary-text-color);
+        }
+        
+        .card-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          background: var(--card-background-color);
+          border-top: 1px solid var(--divider-color);
+        }
+        
+        .mode-indicator {
+          font-size: 0.8em;
+          color: var(--secondary-text-color);
+        }
+        
+        .dots {
+          display: flex;
+          gap: 6px;
+        }
+        
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--disabled-text-color);
+          transition: background 0.3s ease;
+        }
+        
+        .dot.active {
+          background: var(--primary-color);
+        }
+        
+        @media (max-width: 600px) {
+          .film-container {
+            flex-direction: column;
+          }
+          
+          .film-image {
+            flex: 0 0 200px;
+          }
+        }
+      </style>
+    `;
+  }
+
   render() {
-    if (!this.config || !this.hass) {
-      return html``;
+    this.shadowRoot.innerHTML = this.createStyles() + this.createCardHTML();
+    this.attachEventListeners();
+  }
+
+  updateCard() {
+    if (this.shadowRoot) {
+      this.shadowRoot.innerHTML = this.createStyles() + this.createCardHTML();
+      this.attachEventListeners();
+    }
+  }
+
+  createCardHTML() {
+    if (!this._config || !this._hass) {
+      return '<ha-card><div class="warning">Loading...</div></ha-card>';
     }
 
-    const entity = this.hass.states[this.config.entity];
+    const entity = this._hass.states[this._config.entity];
     if (!entity) {
-      return html`
-        <ha-card>
-          <div class="warning">Entity not available: ${this.config.entity}</div>
-        </ha-card>
-      `;
+      return `<ha-card><div class="warning">Entity not available: ${this._config.entity}</div></ha-card>`;
     }
 
     const currentFilm = this.getCurrentFilm();
     if (!currentFilm) {
-      return html`
-        <ha-card>
-          <div class="no-films">No films available</div>
-        </ha-card>
-      `;
+      return '<ha-card><div class="no-films">No films available</div></ha-card>';
     }
 
-    return html`
-      <ha-card @click=${this.handleCardClick}>
+    const cardName = this._config.name || entity.attributes.cinema_name || "Cinema Films";
+    const filmCounter = `${this.currentFilmIndex + 1} / ${this.films.length}`;
+    const modeText = this.isManualMode ? "Manual Mode" : "Auto Rotate";
+    
+    const dotsHTML = this.films.map((_, index) => 
+      `<span class="dot ${index === this.currentFilmIndex ? 'active' : ''}"></span>`
+    ).join('');
+
+    return `
+      <ha-card>
         <div class="card-header">
-          <div class="name">${this.config.name || entity.attributes.cinema_name || "Cinema Films"}</div>
-          <div class="film-counter">${this.currentFilmIndex + 1} / ${this.films.length}</div>
+          <div class="name">${cardName}</div>
+          <div class="film-counter">${filmCounter}</div>
         </div>
         
         <div class="film-container">
           <div class="film-image">
             <img src="${currentFilm.image}" alt="${currentFilm.title}" />
             <div class="navigation-buttons">
-              <button class="nav-button prev" @click=${this.handlePrevious}>‹</button>
-              <button class="nav-button next" @click=${this.handleNext}>›</button>
+              <button class="nav-button prev">‹</button>
+              <button class="nav-button next">›</button>
             </div>
           </div>
           
@@ -213,198 +397,109 @@ class HeliosCinemaCard extends LitElement {
         </div>
         
         <div class="card-footer">
-          <div class="mode-indicator">
-            ${this.isManualMode ? "Manual Mode" : "Auto Rotate"}
-          </div>
-          <div class="dots">
-            ${this.films.map((_, index) => html`
-              <span class="dot ${index === this.currentFilmIndex ? 'active' : ''}"></span>
-            `)}
-          </div>
+          <div class="mode-indicator">${modeText}</div>
+          <div class="dots">${dotsHTML}</div>
         </div>
       </ha-card>
     `;
   }
 
-  static get styles() {
-    return css`
-      ha-card {
-        cursor: pointer;
-        overflow: hidden;
-        transition: transform 0.2s ease;
+  attachEventListeners() {
+    const card = this.shadowRoot.querySelector('ha-card');
+    const prevButton = this.shadowRoot.querySelector('.nav-button.prev');
+    const nextButton = this.shadowRoot.querySelector('.nav-button.next');
+
+    if (card) {
+      card.addEventListener('click', () => this.handleCardClick());
+    }
+
+    if (prevButton) {
+      prevButton.addEventListener('click', (e) => this.handlePrevious(e));
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', (e) => this.handleNext(e));
+    }
+  }
+
+  formatShowtimes(showtimes) {
+    if (!showtimes || showtimes.length === 0) {
+      return 'No showtimes';
+    }
+    return showtimes.join(', ');
+  }
+
+  getCurrentFilm() {
+    return this.films[this.currentFilmIndex] || null;
+  }
+
+  nextFilm() {
+    this.currentFilmIndex = (this.currentFilmIndex + 1) % this.films.length;
+    this.updateCard();
+  }
+
+  previousFilm() {
+    this.currentFilmIndex = this.currentFilmIndex === 0 
+      ? this.films.length - 1 
+      : this.currentFilmIndex - 1;
+    this.updateCard();
+  }
+
+  handleNext(e) {
+    e.stopPropagation();
+    this.enterManualMode();
+    this.nextFilm();
+  }
+
+  handlePrevious(e) {
+    e.stopPropagation();
+    this.enterManualMode();
+    this.previousFilm();
+  }
+
+  handleCardClick() {
+    this.enterManualMode();
+  }
+
+  enterManualMode() {
+    this.isManualMode = true;
+    this.stopAutoRotation();
+    this.updateCard();
+    
+    // Return to auto mode after 30 seconds
+    if (this.manualModeTimeout) {
+      clearTimeout(this.manualModeTimeout);
+    }
+    this.manualModeTimeout = setTimeout(() => {
+      this.isManualMode = false;
+      this.startAutoRotation();
+      this.updateCard();
+    }, 30000);
+  }
+
+  startAutoRotation() {
+    if (this.rotationInterval) {
+      clearInterval(this.rotationInterval);
+    }
+    
+    this.rotationInterval = setInterval(() => {
+      if (!this.isManualMode && this.films.length > 1) {
+        this.nextFilm();
       }
-      
-      ha-card:hover {
-        transform: translateY(-2px);
-      }
-      
-      .warning,
-      .no-films {
-        padding: 20px;
-        text-align: center;
-        color: var(--warning-color, #ff9800);
-      }
-      
-      .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px;
-        background: var(--primary-color);
-        color: white;
-      }
-      
-      .name {
-        font-size: 1.2em;
-        font-weight: bold;
-      }
-      
-      .film-counter {
-        font-size: 0.9em;
-        opacity: 0.8;
-      }
-      
-      .film-container {
-        display: flex;
-        min-height: 300px;
-      }
-      
-      .film-image {
-        position: relative;
-        flex: 0 0 200px;
-        overflow: hidden;
-      }
-      
-      .film-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      
-      .navigation-buttons {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        transform: translateY(-50%);
-        display: flex;
-        justify-content: space-between;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      
-      .film-image:hover .navigation-buttons {
-        opacity: 1;
-      }
-      
-      .nav-button {
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 10px;
-      }
-      
-      .nav-button:hover {
-        background: rgba(0, 0, 0, 0.9);
-      }
-      
-      .film-info {
-        flex: 1;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-      }
-      
-      .film-title {
-        margin: 0 0 12px 0;
-        font-size: 1.4em;
-        color: var(--primary-text-color);
-      }
-      
-      .film-description {
-        margin: 0 0 16px 0;
-        color: var(--secondary-text-color);
-        line-height: 1.4;
-        flex: 1;
-      }
-      
-      .showtimes {
-        margin-top: auto;
-      }
-      
-      .showtime-section {
-        margin-bottom: 8px;
-      }
-      
-      .showtime-section h3 {
-        margin: 0 0 4px 0;
-        font-size: 0.9em;
-        color: var(--primary-color);
-        text-transform: uppercase;
-        font-weight: bold;
-      }
-      
-      .times {
-        font-size: 0.9em;
-        color: var(--secondary-text-color);
-      }
-      
-      .card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 16px;
-        background: var(--card-background-color);
-        border-top: 1px solid var(--divider-color);
-      }
-      
-      .mode-indicator {
-        font-size: 0.8em;
-        color: var(--secondary-text-color);
-      }
-      
-      .dots {
-        display: flex;
-        gap: 6px;
-      }
-      
-      .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--disabled-text-color);
-        transition: background 0.3s ease;
-      }
-      
-      .dot.active {
-        background: var(--primary-color);
-      }
-      
-      @media (max-width: 600px) {
-        .film-container {
-          flex-direction: column;
-        }
-        
-        .film-image {
-          flex: 0 0 200px;
-        }
-      }
-    `;
+    }, 5000);
+  }
+
+  stopAutoRotation() {
+    if (this.rotationInterval) {
+      clearInterval(this.rotationInterval);
+      this.rotationInterval = null;
+    }
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
-    this.stopAutoRotate();
-    if (this.manualTimeoutId) {
-      clearTimeout(this.manualTimeoutId);
+    this.stopAutoRotation();
+    if (this.manualModeTimeout) {
+      clearTimeout(this.manualModeTimeout);
     }
   }
 }
