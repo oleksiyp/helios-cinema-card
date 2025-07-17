@@ -41,7 +41,7 @@ File: `hacs.json`
 Users can add your repository manually:
 1. Go to HACS → Integrations
 2. Click three dots menu → Custom repositories
-3. Add repository URL: `https://github.com/YOUR_USERNAME/helios-cinema-card`
+3. Add repository URL: `https://github.com/oleksiyp/helios-cinema-card`
 4. Select category: Integration
 5. Click Add
 

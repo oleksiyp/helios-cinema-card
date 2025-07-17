@@ -31,7 +31,7 @@ A custom Home Assistant integration that displays movies from Helios Cinema Wroc
 
 ### Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/yourusername/helios-cinema-card/releases)
+1. Download the latest release from the [releases page](https://github.com/oleksiyp/helios-cinema-card/releases)
 2. Extract the files
 3. Copy `custom_components/helios_cinema` to your `custom_components` directory
 4. Copy `www/helios-cinema-card.js` to your `www` directory

@@ -28,4 +28,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Home Assistant sensor integration
 - Customizable update intervals
 
-[1.0.0]: https://github.com/yourusername/helios-cinema-card/releases/tag/v1.0.0
+[1.0.0]: https://github.com/oleksiyp/helios-cinema-card/releases/tag/v1.0.0

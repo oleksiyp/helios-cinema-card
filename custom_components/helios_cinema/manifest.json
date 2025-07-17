@@ -2,10 +2,10 @@
   "domain": "helios_cinema",
   "name": "Helios Cinema Card",
   "version": "1.0.0",
-  "documentation": "https://github.com/yourusername/helios-cinema-card",
-  "issue_tracker": "https://github.com/yourusername/helios-cinema-card/issues",
+  "documentation": "https://github.com/oleksiyp/helios-cinema-card",
+  "issue_tracker": "https://github.com/oleksiyp/helios-cinema-card/issues",
   "dependencies": [],
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@oleksiyp"],
   "requirements": [
     "aiohttp>=3.8.0",
     "beautifulsoup4>=4.9.3",

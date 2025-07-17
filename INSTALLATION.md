@@ -33,7 +33,7 @@ HACS (Home Assistant Community Store) is the easiest way to install and manage c
 ### Method 2: Manual Installation
 
 #### Step 1: Download Files
-1. Download the latest release from [GitHub releases](https://github.com/yourusername/helios-cinema-card/releases)
+1. Download the latest release from [GitHub releases](https://github.com/oleksiyp/helios-cinema-card/releases)
 2. Extract the downloaded ZIP file
 
 #### Step 2: Copy Integration Files
@@ -175,5 +175,5 @@ manual_timeout: 60000       # 1-minute timeout
 
 If you encounter issues:
 1. Check the [troubleshooting section](#troubleshooting)
-2. Review the [GitHub issues](https://github.com/yourusername/helios-cinema-card/issues)
+2. Review the [GitHub issues](https://github.com/oleksiyp/helios-cinema-card/issues)
 3. Create a new issue with logs and configuration details
